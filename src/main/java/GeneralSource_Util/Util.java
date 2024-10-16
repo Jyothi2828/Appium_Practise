@@ -12,9 +12,9 @@ import java.util.concurrent.TimeUnit;
 
 public class Util {
 
-    public WebDriver driver;
+    public static WebDriver driver;
 
-    public void launchApp() throws Exception {
+    public static void launchApp() throws Exception {
         DesiredCapabilities caps = new DesiredCapabilities();
 
         // Predefined capabilities
@@ -38,7 +38,9 @@ public class Util {
         String xpathForAddToCartButton = "//android.widget.TextView[@resource-id='com.androidsample.generalstore:id/productName' and @text='" + productName + "']" +
                 "/following-sibling::android.widget.LinearLayout/android.widget.TextView[@resource-id='com.androidsample.generalstore:id/productAddCart']";
 
-        return driver.findElement(By.xpath(xpathForAddToCartButton));
+        WebElement addtocartbtn=driver.findElement(By.xpath(xpathForAddToCartButton));
+        addtocartbtn.click();
+        return addtocartbtn;
     }
 
     // Single reusable method to remove $ and convert to double
@@ -68,7 +70,7 @@ public class Util {
             String scrollableCommand = "new UiScrollable(new UiSelector()).scrollIntoView(new UiSelector().text(\"" + productName + "\"));";
             ((AndroidDriver) driver).findElementByAndroidUIAutomator(scrollableCommand);
 
-            String xpathForAddToCartButton = "//android.widget.TextView[@resource-id='com.androidsample.generalstore:id/productName' and @text='" + productName + "']" +
+            String xpathForAddToCartButton = "//android.widget.TextView[@resource-id='com.androidsample.generalstore:id/productName' and contains(@text, '" + productName + "')]" +
                     "/following-sibling::android.widget.LinearLayout/android.widget.TextView[@resource-id='com.androidsample.generalstore:id/productAddCart']";
 
             WebElement addToCartButton = driver.findElement(By.xpath(xpathForAddToCartButton));
@@ -78,5 +80,37 @@ public class Util {
         }
     }
 
+    // Method to fill user details
+    public static void fillUserDetails(WebDriver driver, String name, String country, String gender) {
+        // Click on the country dropdown and select the specified country
+        driver.findElement(By.xpath("//android.widget.TextView[@resource-id=\"android:id/text1\"]")).click();
+        scrollbyUsingtext(driver, country).click();
+
+        // Enter the name
+        driver.findElement(By.xpath("//android.widget.EditText[@resource-id=\"com.androidsample.generalstore:id/nameField\"]"))
+                .sendKeys(name);
+
+        // Select the gender
+        if (gender.equalsIgnoreCase("male")) {
+            driver.findElement(By.xpath("//android.widget.RadioButton[@resource-id=\"com.androidsample.generalstore:id/radioMale\"]")).click();
+        } else if (gender.equalsIgnoreCase("female")) {
+            driver.findElement(By.xpath("//android.widget.RadioButton[@resource-id=\"com.androidsample.generalstore:id/radioFemale\"]")).click();
+        } else {
+            System.out.println("Invalid gender specified: " + gender);
+        }
+
+        // Click on the "Lets Shop" button
+        driver.findElement(By.xpath("//android.widget.Button[@resource-id=\"com.androidsample.generalstore:id/btnLetsShop\"]")).click();
+    }
+
+    public static String getTextByXPath(WebDriver driver, String xpath) {
+        try {
+            WebElement element = driver.findElement(By.xpath(xpath));
+            return element.getText(); // Return the text of the element
+        } catch (Exception e) {
+            System.out.println("Element not found or unable to get text. Error: " + e.getMessage());
+            return ""; // Return an empty string or handle as needed
+        }
+    }
 
 }
